@@ -1,0 +1,32 @@
+The API is similar to that of the Google Maps version ([1]):
+
+var map = new L.Map('map');
+var lat = ...;
+var lng = ...;
+var pos = new L.LatLng(lat, lng);
+var zoom = 4;
+map.setView(pos, zoom);
+
+var clusterer = new LeafClusterer(map);
+
+var lat = ...;
+var lng = ...;
+var pos = new L.LatLng(lat, lng);
+var marker = new L.Marker(pos);
+clusterer.addMarker(marker);
+
+or for batched addition:
+
+var markers=[];
+for each marker (m) {
+   markers.push(m);
+}
+
+clusterer.addMarkers(markers);
+
+
+
+[1] http://gmaps-utility-library.googlecode.com/svn/trunk/markerclusterer/
+
+
+
