@@ -246,9 +246,20 @@ function LeafClusterer(map, opt_markers, opt_opts) {
    */
 
   this.removeMarker = function (marker) {
+    for (var i = 0; i < leftMarkers_.length; ++i) {
+      if (marker === leftMarkers_[i]) {
+        leftMarkers_.splice(i, 1);
+        return;
+      }
+    }
     for (var i = 0; i < clusters_.length; ++i) {
-      if (clusters_[i].remove(marker)) {
-        clusters_[i].redraw_();
+      if (clusters_[i] && clusters_[i].removeMarker(marker)) {
+        if (clusters_[i].getTotalMarkers() == 0) {
+            clusters_[i].clearMarkers();
+            clusters_.splice(i, 1);
+        } else {
+            clusters_[i].redraw_();
+        }
         return;
       }
     }
