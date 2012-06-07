@@ -95,6 +95,10 @@ function LeafClusterer(map, opt_markers, opt_opts) {
       'width': sizes[i - 1]
     });
   }
+  
+  //create a new pane for the clusters
+  map._panes.clusterPane = map._createPane("leaflet-cluster-pane");
+  $(".leaflet-cluster-pane").css("z-index", "8").css("position","absolute");
 
   if (typeof opt_opts === "object" && opt_opts !== null) {
     if (typeof opt_opts.gridSize === "number" && opt_opts.gridSize > 0) {
@@ -633,7 +637,7 @@ ClusterMarker_ = L.Class.extend({
   onAdd: function(map) {
     this.map_ = map;
     this.container_ = L.DomUtil.create('div', 'cluster-marker-container');
-    map.getPanes().markerPane.appendChild(this.container_);
+    map.getPanes().clusterPane.appendChild(this.container_);
     var cluster = this;
 
     if (this.container_.addEventListener) {
@@ -665,7 +669,7 @@ ClusterMarker_ = L.Class.extend({
   },
 
   onRemove: function(map) {
-    map.getPanes().markerPane.removeChild(this.container_);
+    map.getPanes().clusterPane.removeChild(this.container_);
     map.off('viewreset', this.redraw, this);
   },
 
