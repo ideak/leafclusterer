@@ -729,7 +729,7 @@ ClusterMarker_ = L.Class.extend({
     var txtColor = this.textColor_ ? this.textColor_ : 'black';
   
     div.style.cssText = mstyle + "cursor:pointer;top:0px;left:0px" +
-        "color:" + txtColor +  ";position:absolute;font-size:11px;" +
+        "color:" + txtColor +  ";font-size:11px;" +
         'font-family:Arial,sans-serif;font-weight:bold';
     div.innerHTML = this.count_;
 
