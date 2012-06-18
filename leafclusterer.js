@@ -582,6 +582,8 @@ function Cluster(leafClusterer) {
 }
 
 ClusterMarker_ = L.Class.extend({
+  includes: L.Mixin.Events,
+  
   initialize: function(latLng_, count_, styles_, padding_) {
     this.reset({latLng:latLng_, count: count_, styles: styles_, padding: padding_});
   },
@@ -637,20 +639,8 @@ ClusterMarker_ = L.Class.extend({
   onAdd: function(map) {
     this.map_ = map;
     this.container_ = L.DomUtil.create('div', 'cluster-marker-container');
+    
     map.getPanes().clusterPane.appendChild(this.container_);
-    var cluster = this;
-
-    if (this.container_.addEventListener) {
-      this.container_.addEventListener("click",
-        function() {
-          cluster.onClick_(cluster);
-        }, false); 
-    } else if (this.container_.attachEvent) {
-      this.container_.attachEvent("onclick",
-        function() {
-          cluster.onClick_(cluster);
-        });     
-    }   
     map.on('viewreset', this.redraw, this);
     this.redraw();
   },
@@ -686,8 +676,10 @@ ClusterMarker_ = L.Class.extend({
     var pos = this.map_.latLngToLayerPoint(this.latlng_);
     pos.x -= parseInt(this.width_ / 2, 10);
     pos.y -= parseInt(this.height_ / 2, 10);
-    this.container_.style.top =  pos.y + "px";
-    this.container_.style.left = pos.x + "px";
+    
+    //this is important!
+    this.container_.style.zIndex = pos.y;
+    this.container_.style.webkitTransform = L.DomUtil.getTranslateString(pos);
     
     //need to set the width and height of the container div
     this.container_.style.width = this.width_ + "px";
@@ -736,11 +728,17 @@ ClusterMarker_ = L.Class.extend({
     }
     var txtColor = this.textColor_ ? this.textColor_ : 'black';
   
-    div.style.cssText = mstyle + 'cursor:pointer;top:' + pos.y + "px;left:" +
-        pos.x + "px;color:" + txtColor +  ";position:absolute;font-size:11px;" +
+    div.style.cssText = mstyle + "cursor:pointer;top:0px;left:0px" +
+        "color:" + txtColor +  ";position:absolute;font-size:11px;" +
         'font-family:Arial,sans-serif;font-weight:bold';
     div.innerHTML = this.count_;
 
+    //add a listener and some extra styles
+    var cluster = this;
+    div.style.zIndex = pos.y;
+    div.className += " leaflet-clickable";
+    L.DomEvent.addListener(div, 'click', function () { cluster.onClick_(cluster); }, this);
+        
     return div;
   }
 });
