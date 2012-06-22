@@ -679,11 +679,11 @@ ClusterMarker_ = L.Class.extend({
     
     //this is important!
     this.container_.style.zIndex = pos.y;
+    this.container_.style.position = "absolute";
     
     if (L.Browser.webkit3d) {
         this.container_.style[L.DomUtil.TRANSFORM] = L.DomUtil.getTranslateString(pos);
     } else {
-        this.container_.style.position = "absolute";
         this.container_.style.left = pos.x + "px";
         this.container_.style.top = pos.y + "px";
     }
