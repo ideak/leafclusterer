@@ -98,7 +98,9 @@ function LeafClusterer(map, opt_markers, opt_opts) {
   
   //create a new pane for the clusters
   map._panes.clusterPane = map._createPane("leaflet-cluster-pane");
-  $(".leaflet-cluster-pane").css("z-index", "8").css("position","absolute");
+  var clusterPane = document.getElementsByClassName("leaflet-cluster-pane")[0];
+  clusterPane.style.zIndex = 8;
+  clusterPane.style.position = "absolute";
 
   if (typeof opt_opts === "object" && opt_opts !== null) {
     if (typeof opt_opts.gridSize === "number" && opt_opts.gridSize > 0) {
