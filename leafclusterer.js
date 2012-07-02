@@ -95,6 +95,12 @@ function LeafClusterer(map, opt_markers, opt_opts) {
       'width': sizes[i - 1]
     });
   }
+  
+  //create a new pane for the clusters
+  map._panes.clusterPane = map._createPane("leaflet-cluster-pane");
+  var clusterPane = document.getElementsByClassName("leaflet-cluster-pane")[0];
+  clusterPane.style.zIndex = 8;
+  clusterPane.style.position = "absolute";
 
   if (typeof opt_opts === "object" && opt_opts !== null) {
     if (typeof opt_opts.gridSize === "number" && opt_opts.gridSize > 0) {
@@ -578,6 +584,8 @@ function Cluster(leafClusterer) {
 }
 
 ClusterMarker_ = L.Class.extend({
+  includes: L.Mixin.Events,
+  
   initialize: function(latLng_, count_, styles_, padding_) {
     this.reset({latLng:latLng_, count: count_, styles: styles_, padding: padding_});
   },
@@ -633,20 +641,8 @@ ClusterMarker_ = L.Class.extend({
   onAdd: function(map) {
     this.map_ = map;
     this.container_ = L.DomUtil.create('div', 'cluster-marker-container');
-    map.getPanes().overlayPane.appendChild(this.container_);
-    var cluster = this;
-
-    if (this.container_.addEventListener) {
-      this.container_.addEventListener("click",
-        function() {
-          cluster.onClick_(cluster);
-        }, false); 
-    } else if (this.container_.attachEvent) {
-      this.container_.attachEvent("onclick",
-        function() {
-          cluster.onClick_(cluster);
-        });     
-    }   
+    
+    map.getPanes().clusterPane.appendChild(this.container_);
     map.on('viewreset', this.redraw, this);
     this.redraw();
   },
@@ -665,7 +661,7 @@ ClusterMarker_ = L.Class.extend({
   },
 
   onRemove: function(map) {
-    map.getPanes().overlayPane.removeChild(this.container_);
+    map.getPanes().clusterPane.removeChild(this.container_);
     map.off('viewreset', this.redraw, this);
   },
 
@@ -682,8 +678,21 @@ ClusterMarker_ = L.Class.extend({
     var pos = this.map_.latLngToLayerPoint(this.latlng_);
     pos.x -= parseInt(this.width_ / 2, 10);
     pos.y -= parseInt(this.height_ / 2, 10);
-    this.container_.style.top =  pos.y + "px";
-    this.container_.style.left = pos.x + "px";
+    
+    //this is important!
+    this.container_.style.zIndex = pos.y;
+    this.container_.style.position = "absolute";
+    
+    if (L.Browser.webkit3d) {
+        this.container_.style[L.DomUtil.TRANSFORM] = L.DomUtil.getTranslateString(pos);
+    } else {
+        this.container_.style.left = pos.x + "px";
+        this.container_.style.top = pos.y + "px";
+    }
+    
+    //need to set the width and height of the container div
+    this.container_.style.width = this.width_ + "px";
+    this.container_.style.height = this.height_ + "px";
   },
 
   hide: function() {
@@ -728,11 +737,17 @@ ClusterMarker_ = L.Class.extend({
     }
     var txtColor = this.textColor_ ? this.textColor_ : 'black';
   
-    div.style.cssText = mstyle + 'cursor:pointer;top:' + pos.y + "px;left:" +
-        pos.x + "px;color:" + txtColor +  ";position:absolute;font-size:11px;" +
+    div.style.cssText = mstyle + "cursor:pointer;" +
+        "color:" + txtColor +  ";font-size:11px;" +
         'font-family:Arial,sans-serif;font-weight:bold';
     div.innerHTML = this.count_;
 
+    //add a listener and some extra styles
+    var cluster = this;
+    div.style.zIndex = pos.y;
+    div.className += " leaflet-clickable";
+    L.DomEvent.addListener(div, 'click', function () { cluster.onClick_(cluster); }, this);
+        
     return div;
   }
 });
