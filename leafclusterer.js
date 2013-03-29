@@ -158,7 +158,7 @@ L.Marker.Clusterer = L.Class.extend({
 		}
 		this._clusters = [];
 		this._leftMarkers = [];
-		map.off(this._mcfn);
+		this._map.off(this._mcfn);
 	},
 
 	/**
@@ -238,7 +238,7 @@ L.Marker.Clusterer = L.Class.extend({
 		}
 
 		// No cluster contain the marker, create a new cluster.
-		cluster = new L.Marker.Cluster(this, map);
+		cluster = new L.Marker.Cluster(this, this._map);
 		cluster.addMarker({
 			'isAdded': isAdded,
 			'marker': marker
